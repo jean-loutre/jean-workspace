@@ -1,0 +1,3 @@
+[submodule "third-party/jean-nvim"]
+	path = third-party/jean-nvim
+	url = https://github.com/jean-loutre/jean-nvim

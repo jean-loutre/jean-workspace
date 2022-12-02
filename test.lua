@@ -7,8 +7,8 @@ local function run()
 			"./lua/?.lua",
 			"./tests/?.lua",
 			"./third-party/?.lua",
-			"./third-party/jean-vim/lua/?.lua",
-			"./third-party/jean-vim/third-party/jean-lua/lua/?.lua",
+			"./third-party/jean-nvim/lua/?.lua",
+			"./third-party/jean-nvim/third-party/jean-lua/lua/?.lua",
 		}, ";")
 
 	pcall(function()
