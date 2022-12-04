@@ -73,4 +73,30 @@ function Suite.apply_template()
 	assert_equals(config, {})
 end
 
+function Suite.merge_templates()
+	Plugin({
+		templates = {
+			{
+				config = {
+					power = "12kw",
+				},
+			},
+			{
+				config = {
+					rpm = 15000,
+				},
+			},
+		},
+	})
+
+	local workspace_loaded = Mock()
+
+	Autocommand("User", { pattern = "jworkspace#workspace_loaded", callback = workspace_loaded })
+
+	vim.cmd("JWLoadWorkspace " .. vim.fn.getcwd() .. " caiman_shredder")
+
+	local config = workspace_loaded.calls[1][1].data.config
+	assert_equals(config, { power = "12kw", rpm = 15000 })
+end
+
 return Suite

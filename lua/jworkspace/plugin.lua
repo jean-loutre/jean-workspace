@@ -84,13 +84,13 @@ function Plugin:_on_buffer_add(args)
 end
 
 function Plugin:_load_workspace(root, name)
-	local template = self._templates:first(function(template_it)
+	local config = {}
+	local matching_templates = self._templates:filter(function(template_it)
 		return template_it:matches(root, name)
 	end)
 
-	local config = {}
-	if template then
-		config = template.workspace_config
+	for template_it in matching_templates do
+		Map.deep_update(config, template_it.workspace_config)
 	end
 
 	local new_workspace = Workspace(root, name)
