@@ -43,4 +43,34 @@ function Suite.map_workspace()
 	assert_equals(vim.fn["jworkspace#get_workspace_root"](workspace_id), tostring(workspace_root))
 end
 
+function Suite.apply_template()
+	Plugin({
+		templates = {
+			{
+				filters = {
+					function(_, name)
+						return name == "caiman_shredder"
+					end,
+				},
+				config = {
+					power = "12kw",
+				},
+			},
+		},
+	})
+
+	local workspace_loaded = Mock()
+
+	Autocommand("User", { pattern = "jworkspace#workspace_loaded", callback = workspace_loaded })
+
+	vim.cmd("JWLoadWorkspace " .. vim.fn.getcwd() .. " caiman_shredder")
+
+	local config = workspace_loaded.calls[1][1].data.config
+	assert_equals(config, { power = "12kw" })
+
+	vim.cmd("JWLoadWorkspace " .. vim.fn.getcwd() .. " caiman_electrifier")
+	config = workspace_loaded.calls[2][1].data.config
+	assert_equals(config, {})
+end
+
 return Suite

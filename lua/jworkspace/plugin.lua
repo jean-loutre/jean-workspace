@@ -7,6 +7,7 @@ local is_callable = require("jlua.type").is_callable
 local BoundContext = require("jnvim.bound-context")
 local Path = require("jnvim.path")
 
+local Template = require("jworkspace.template")
 local Workspace = require("jworkspace.workspace")
 
 local Plugin = BoundContext:extend()
@@ -25,6 +26,7 @@ function Plugin:init(config)
 
 	self._workspaces = List({})
 	self._workspace_mappers = Iterator.from_values(config:pop("workspace_mappers", {})):map(load_workspace_mapper)
+	self._templates = Iterator.from_values(config:pop("templates", {})):map(Template)
 
 	self:bind_user_command("JWLoadWorkspace", "load_workspace", { nargs = "*" })
 	self:bind_function("get_workspace_name")
@@ -82,10 +84,19 @@ function Plugin:_on_buffer_add(args)
 end
 
 function Plugin:_load_workspace(root, name)
+	local template = self._templates:first(function(template_it)
+		return template_it:matches(root, name)
+	end)
+
+	local config = {}
+	if template then
+		config = template.workspace_config
+	end
+
 	local new_workspace = Workspace(root, name)
 	self._workspaces:push(new_workspace)
 	local workspace_id = #self._workspaces
-	self:execute_user_autocommand("workspace_loaded", { workspace = workspace_id })
+	self:execute_user_autocommand("workspace_loaded", { workspace = workspace_id, config = config })
 end
 
 return Plugin

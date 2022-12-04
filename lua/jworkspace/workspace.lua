@@ -4,9 +4,10 @@ local Object = require("jlua.object")
 local Workspace = Object:extend()
 
 --- Initialize a workspace
-function Workspace:init(root, name)
+function Workspace:init(root, name, config)
 	self._root = root
 	self._name = name
+	self._config = config
 end
 
 --- Get the workspace name
