@@ -28,8 +28,10 @@ function Plugin:init(config)
 	self._workspace_mappers =
 		Iterator.from_values(config:pop("workspace_mappers", {})):map(load_workspace_mapper):to_list()
 	self._templates = Iterator.from_values(config:pop("templates", {})):map(Template):to_list()
+	self._active_workspace_id = 0
 
 	self:bind_user_command("JWLoadWorkspace", "load_workspace", { nargs = "*" })
+	self:bind_user_command("JWActivateWorkspace", "activate_workspace", { nargs = 1 })
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
 	self:bind_autocommand("BufAdd", "_on_buffer_add")
@@ -70,6 +72,28 @@ end
 function Plugin:get_workspace_root(id)
 	assert(self._workspaces[id], "Invalid workspace id")
 	return tostring(self._workspaces[id].root)
+end
+
+--- Activate a workspace.
+--
+-- Parameters
+-- ----------
+--
+-- id : int
+--     The workspace id
+function Plugin:activate_workspace(opts)
+	local id = tonumber(opts.args)
+	assert(id == 0 or self._workspaces[id], "Invalid workspace id")
+
+	if self._active_workspace_id ~= 0 then
+		self:execute_user_autocommand("workspace_deactivated", { workspace = self._active_workspace_id })
+	end
+
+	self._active_workspace_id = id
+
+	if self._active_workspace_id ~= 0 then
+		self:execute_user_autocommand("workspace_activated", { workspace = self._active_workspace_id })
+	end
 end
 
 function Plugin:_on_buffer_add(args)

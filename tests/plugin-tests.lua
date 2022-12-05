@@ -122,4 +122,27 @@ function Suite.file_filters()
 	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
 end
 
+function Suite.enable_workspace()
+	Plugin({})
+
+	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
+
+	local loaded_mock = mock_autocommand("workspace_loaded")
+
+	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
+
+	local id = loaded_mock.call.data.workspace
+
+	local activated_mock = mock_autocommand("workspace_activated")
+	local deactivated_mock = mock_autocommand("workspace_deactivated")
+
+	vim.cmd("JWActivateWorkspace " .. id)
+	assert_equals(activated_mock.call.data.workspace, id)
+	assert_equals(#deactivated_mock.calls, 0)
+
+	vim.cmd("JWActivateWorkspace 0")
+	assert_equals(activated_mock.call.data.workspace, id)
+	assert_equals(deactivated_mock.call.data.workspace, id)
+end
+
 return Suite
