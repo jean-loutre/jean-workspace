@@ -90,4 +90,36 @@ function Suite.merge_templates()
 	assert_equals(mock.call.data.config, { power = "12kw", rpm = 15000 })
 end
 
+function Suite.file_filters()
+	Plugin({
+		workspace_mappers = {
+			function(_)
+				return "/caiman_shredder", "Caiman Shredder"
+			end,
+		},
+		templates = {
+			{
+				config = {
+					file_filters = {
+						function(path)
+							return path.basename == "dinglepop.lua"
+						end,
+					},
+				},
+			},
+		},
+	})
+
+	local mock = mock_autocommand("workspace_loaded")
+
+	vim.cmd("e /caiman_shredder/setup.py")
+	assert_equals(#mock.calls, 0)
+
+	vim.cmd("e /caiman_shredder/dinglepop.lua")
+
+	local id = mock.call.data.workspace
+	assert_equals(vim.fn["jworkspace#get_workspace_name"](id), "Caiman Shredder")
+	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
+end
+
 return Suite

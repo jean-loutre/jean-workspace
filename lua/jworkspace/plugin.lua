@@ -80,11 +80,11 @@ function Plugin:_on_buffer_add(args)
 		:first()
 
 	if root and name then
-		self:_load_workspace(root, name)
+		self:_load_workspace(root, name, Path(args.buf.name))
 	end
 end
 
-function Plugin:_load_workspace(root, name)
+function Plugin:_load_workspace(root, name, trigger_path)
 	local config = {}
 	local matching_templates = self._templates:filter(function(template_it)
 		return template_it:matches(root, name)
@@ -94,7 +94,12 @@ function Plugin:_load_workspace(root, name)
 		Map.deep_update(config, template_it.workspace_config or {})
 	end
 
-	local new_workspace = Workspace(root, name)
+	local new_workspace = Workspace(root, name, config)
+
+	if trigger_path ~= nil and not new_workspace:matches_file(trigger_path) then
+		return
+	end
+
 	self._workspaces:push(new_workspace)
 	local workspace_id = #self._workspaces
 	self:execute_user_autocommand("workspace_loaded", { workspace = workspace_id, config = config })
