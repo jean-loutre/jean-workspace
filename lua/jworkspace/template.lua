@@ -34,7 +34,7 @@ end
 --     The configuration to apply to workspace matching this template.
 function Template:init(config)
 	Map:wrap(config or {})
-	self._workspace_filters = List()
+	self._workspace_filters = List(config:pop("workspace_filters", {}))
 
 	local root = config:pop("root")
 	if root then

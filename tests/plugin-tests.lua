@@ -47,7 +47,7 @@ function Suite.apply_template()
 	Plugin({
 		templates = {
 			{
-				filters = {
+				workspace_filters = {
 					function(_, name)
 						return name == "caiman_shredder"
 					end,
@@ -63,14 +63,13 @@ function Suite.apply_template()
 
 	Autocommand("User", { pattern = "jworkspace#workspace_loaded", callback = workspace_loaded })
 
-	vim.cmd("JWLoadWorkspace " .. vim.fn.getcwd() .. " caiman_shredder")
-
-	local config = workspace_loaded.calls[1][1].data.config
-	assert_equals(config, { power = "12kw" })
-
 	vim.cmd("JWLoadWorkspace " .. vim.fn.getcwd() .. " caiman_electrifier")
-	config = workspace_loaded.calls[2][1].data.config
+	local config = workspace_loaded.calls[1][1].data.config
 	assert_equals(config, {})
+
+	vim.cmd("JWLoadWorkspace " .. vim.fn.getcwd() .. " caiman_shredder")
+	config = workspace_loaded.calls[2][1].data.config
+	assert_equals(config, { power = "12kw" })
 end
 
 function Suite.merge_templates()

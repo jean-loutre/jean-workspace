@@ -25,8 +25,9 @@ function Plugin:init(config)
 	Map:wrap(config)
 
 	self._workspaces = List({})
-	self._workspace_mappers = Iterator.from_values(config:pop("workspace_mappers", {})):map(load_workspace_mapper)
-	self._templates = Iterator.from_values(config:pop("templates", {})):map(Template)
+	self._workspace_mappers =
+		Iterator.from_values(config:pop("workspace_mappers", {})):map(load_workspace_mapper):to_list()
+	self._templates = Iterator.from_values(config:pop("templates", {})):map(Template):to_list()
 
 	self:bind_user_command("JWLoadWorkspace", "load_workspace", { nargs = "*" })
 	self:bind_function("get_workspace_name")
@@ -90,7 +91,7 @@ function Plugin:_load_workspace(root, name)
 	end)
 
 	for template_it in matching_templates do
-		Map.deep_update(config, template_it.workspace_config)
+		Map.deep_update(config, template_it.workspace_config or {})
 	end
 
 	local new_workspace = Workspace(root, name)
