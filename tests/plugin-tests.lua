@@ -133,6 +133,8 @@ function Suite.enable_workspace()
 
 	local id = loaded_mock.call.data.workspace
 
+	vim.cmd("JWActivateWorkspace 0")
+
 	local activated_mock = mock_autocommand("workspace_activated")
 	local deactivated_mock = mock_autocommand("workspace_deactivated")
 
@@ -143,6 +145,19 @@ function Suite.enable_workspace()
 	vim.cmd("JWActivateWorkspace 0")
 	assert_equals(activated_mock.call.data.workspace, id)
 	assert_equals(deactivated_mock.call.data.workspace, id)
+end
+
+function Suite.enable_workspace_on_load()
+	Plugin({})
+
+	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
+
+	local loaded_mock = mock_autocommand("workspace_loaded")
+	local activated_mock = mock_autocommand("workspace_activated")
+
+	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
+
+	assert_equals(loaded_mock.data.workspace, activated_mock.data.workspace)
 end
 
 return Suite

@@ -82,18 +82,7 @@ end
 -- id : int
 --     The workspace id
 function Plugin:activate_workspace(opts)
-	local id = tonumber(opts.args)
-	assert(id == 0 or self._workspaces[id], "Invalid workspace id")
-
-	if self._active_workspace_id ~= 0 then
-		self:execute_user_autocommand("workspace_deactivated", { workspace = self._active_workspace_id })
-	end
-
-	self._active_workspace_id = id
-
-	if self._active_workspace_id ~= 0 then
-		self:execute_user_autocommand("workspace_activated", { workspace = self._active_workspace_id })
-	end
+	self:_activate_workspace(tonumber(opts.args))
 end
 
 function Plugin:_on_buffer_add(args)
@@ -127,6 +116,21 @@ function Plugin:_load_workspace(root, name, trigger_path)
 	self._workspaces:push(new_workspace)
 	local workspace_id = #self._workspaces
 	self:execute_user_autocommand("workspace_loaded", { workspace = workspace_id, config = config })
+	self:_activate_workspace(workspace_id)
+end
+
+function Plugin:_activate_workspace(id)
+	assert(id == 0 or self._workspaces[id], "Invalid workspace id")
+
+	if self._active_workspace_id ~= 0 then
+		self:execute_user_autocommand("workspace_deactivated", { workspace = self._active_workspace_id })
+	end
+
+	self._active_workspace_id = id
+
+	if self._active_workspace_id ~= 0 then
+		self:execute_user_autocommand("workspace_activated", { workspace = self._active_workspace_id })
+	end
 end
 
 return Plugin
