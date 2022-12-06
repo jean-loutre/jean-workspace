@@ -1,5 +1,5 @@
 --- The Jean Workspace plugin instance
-local Iterator = require("jlua.iterator")
+local iter = require("jlua.iterator").iter
 local List = require("jlua.list")
 local Map = require("jlua.map")
 local is_callable = require("jlua.type").is_callable
@@ -25,9 +25,8 @@ function Plugin:init(config)
 	Map:wrap(config)
 
 	self._workspaces = List({})
-	self._workspace_mappers =
-		Iterator.from_values(config:pop("workspace_mappers", {})):map(load_workspace_mapper):to_list()
-	self._templates = Iterator.from_values(config:pop("templates", {})):map(Template):to_list()
+	self._workspace_mappers = iter(config:pop("workspace_mappers", {})):map(load_workspace_mapper):to_list()
+	self._templates = iter(config:pop("templates", {})):map(Template):to_list()
 	self._active_workspace_id = 0
 
 	self:bind_user_command("JWLoadWorkspace", "load_workspace", { nargs = "*" })
