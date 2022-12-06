@@ -184,4 +184,38 @@ function Suite.enable_workspace_on_load()
 	assert_equals(loaded_mock.data.workspace, activated_mock.data.workspace)
 end
 
+function Suite.enable_workspace_on_buffer_switch()
+	Plugin({
+		workspace_mappers = {
+			function(buffer)
+				if buffer.name == "/caiman_shredder/setup.py" then
+					return "/caiman_shredder", "Caiman Shredder"
+				end
+				return "/caiman_electrifier", "Caiman Electrifier"
+			end,
+		},
+	})
+
+	local loaded_mock = mock_autocommand("workspace_loaded")
+	vim.cmd("e /caiman_shredder/setup.py")
+	vim.cmd("e /caiman_electrifier/setup.py")
+	local shredder_id = loaded_mock.calls[1][1].data.workspace
+	local electrifier_id = loaded_mock.calls[2][1].data.workspace
+
+	local activated_mock = mock_autocommand("workspace_activated")
+	local deactivated_mock = mock_autocommand("workspace_deactivated")
+
+	vim.cmd("e /caiman_shredder/setup.py")
+
+	assert_equals(deactivated_mock.call.data.workspace, electrifier_id)
+	assert_equals(activated_mock.call.data.workspace, shredder_id)
+
+	activated_mock:reset()
+	deactivated_mock:reset()
+
+	vim.cmd("e /caiman_electrifier/setup.py")
+	assert_equals(deactivated_mock.call.data.workspace, shredder_id)
+	assert_equals(activated_mock.call.data.workspace, electrifier_id)
+end
+
 return Suite

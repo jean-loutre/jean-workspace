@@ -38,6 +38,7 @@ function Plugin:init(config)
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
 	self:bind_autocommand("BufAdd", "_on_buffer_add")
+	self:bind_autocommand("BufEnter", "_on_buffer_enter")
 	self:enable()
 end
 
@@ -100,6 +101,19 @@ function Plugin:_on_buffer_add(args)
 	end
 end
 
+function Plugin:_on_buffer_enter(args)
+	local buffer_path = Path(args.buf.name)
+	local workspace_id_to_activate = iter(pairs(self._workspaces)):first(function(_, workspace)
+		return workspace:matches_file(buffer_path)
+	end)
+
+	if not workspace_id_to_activate then
+		return
+	end
+
+	self:_activate_workspace(workspace_id_to_activate)
+end
+
 function Plugin:_load_workspace(root, name, trigger_path)
 	local config = {}
 	local matching_templates = self._templates:filter(function(template_it)
@@ -110,7 +124,7 @@ function Plugin:_load_workspace(root, name, trigger_path)
 		Map.deep_update(config, template_it.workspace_config or {})
 	end
 
-	local new_workspace = Workspace(root, name, config)
+	local new_workspace = Workspace(Path(root), name, config)
 
 	if trigger_path ~= nil and not new_workspace:matches_file(trigger_path) then
 		return

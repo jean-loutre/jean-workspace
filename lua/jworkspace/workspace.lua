@@ -35,7 +35,7 @@ end
 -- bool
 --     True if the file belongs to the workspace, false otherwise.
 function Workspace:matches_file(path)
-	return self._file_filters:all(function(filter_it)
+	return path:is_child_of(self._root) and self._file_filters:all(function(filter_it)
 		return filter_it(path)
 	end)
 end
