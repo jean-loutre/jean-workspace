@@ -12,20 +12,20 @@ local Suite = TestSuite()
 
 local function mock_autocommand(jw_pattern)
 	local mock = Mock()
-	Autocommand("User", { pattern = "jworkspace#" .. jw_pattern, callback = mock })
+	Autocommand("User", { pattern = "JW" .. jw_pattern, callback = mock })
 	return mock
 end
 
 function Suite.load_workspace()
 	Plugin({})
 
-	local mock = mock_autocommand("workspace_loaded")
+	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
 	local id = mock.call.data.workspace
-	assert_equals(vim.fn["jworkspace#get_workspace_name"](id), "caiman_shredder")
-	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
+	assert_equals(vim.fn["jw#get_workspace_name"](id), "caiman_shredder")
+	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
 end
 
 function Suite.map_workspace()
@@ -38,13 +38,13 @@ function Suite.map_workspace()
 		},
 	})
 
-	local mock = mock_autocommand("workspace_loaded")
+	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("e /caiman_shredder/setup.py")
 
 	local id = mock.call.data.workspace
-	assert_equals(vim.fn["jworkspace#get_workspace_name"](id), "Caiman Shredder")
-	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
+	assert_equals(vim.fn["jw#get_workspace_name"](id), "Caiman Shredder")
+	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
 end
 
 function Suite.load_templates()
@@ -59,7 +59,7 @@ function Suite.load_templates()
 		function()
 			Plugin({})
 
-			local mock = mock_autocommand("workspace_loaded")
+			local mock = mock_autocommand("WorkspaceLoaded")
 			vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 			assert_equals(mock.call.data.config, { power = "12kw" })
 		end
@@ -82,7 +82,7 @@ function Suite.apply_template()
 		},
 	})
 
-	local mock = mock_autocommand("workspace_loaded")
+	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("JWLoadWorkspace /caiman_electrifier caiman_electrifier")
 	assert_equals(mock.call.data.config, {})
@@ -108,7 +108,7 @@ function Suite.merge_templates()
 		},
 	})
 
-	local mock = mock_autocommand("workspace_loaded")
+	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 	assert_equals(mock.call.data.config, { power = "12kw", rpm = 15000 })
@@ -134,7 +134,7 @@ function Suite.file_filters()
 		},
 	})
 
-	local mock = mock_autocommand("workspace_loaded")
+	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("e /caiman_shredder/setup.py")
 	assert_equals(#mock.calls, 0)
@@ -142,8 +142,8 @@ function Suite.file_filters()
 	vim.cmd("e /caiman_shredder/dinglepop.lua")
 
 	local id = mock.call.data.workspace
-	assert_equals(vim.fn["jworkspace#get_workspace_name"](id), "Caiman Shredder")
-	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
+	assert_equals(vim.fn["jw#get_workspace_name"](id), "Caiman Shredder")
+	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
 end
 
 function Suite.activate_workspace()
@@ -151,7 +151,7 @@ function Suite.activate_workspace()
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
-	local loaded_mock = mock_autocommand("workspace_loaded")
+	local loaded_mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
@@ -159,8 +159,8 @@ function Suite.activate_workspace()
 
 	vim.cmd("JWActivateWorkspace 0")
 
-	local activated_mock = mock_autocommand("workspace_activated")
-	local deactivated_mock = mock_autocommand("workspace_deactivated")
+	local activated_mock = mock_autocommand("WorkspaceActivated")
+	local deactivated_mock = mock_autocommand("WorkspaceDeactivated")
 
 	vim.cmd("JWActivateWorkspace " .. id)
 	assert_equals(activated_mock.call.data.workspace, id)
@@ -184,8 +184,8 @@ function Suite.activate_workspace_on_load()
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
-	local loaded_mock = mock_autocommand("workspace_loaded")
-	local activated_mock = mock_autocommand("workspace_activated")
+	local loaded_mock = mock_autocommand("WorkspaceLoaded")
+	local activated_mock = mock_autocommand("WorkspaceActivated")
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
@@ -204,14 +204,14 @@ function Suite.activate_workspace_on_buffer_switch()
 		},
 	})
 
-	local loaded_mock = mock_autocommand("workspace_loaded")
+	local loaded_mock = mock_autocommand("WorkspaceLoaded")
 	vim.cmd("e /caiman_shredder/setup.py")
 	vim.cmd("e /caiman_electrifier/setup.py")
 	local shredder_id = loaded_mock.calls[1][1].data.workspace
 	local electrifier_id = loaded_mock.calls[2][1].data.workspace
 
-	local activated_mock = mock_autocommand("workspace_activated")
-	local deactivated_mock = mock_autocommand("workspace_deactivated")
+	local activated_mock = mock_autocommand("WorkspaceActivated")
+	local deactivated_mock = mock_autocommand("WorkspaceDeactivated")
 
 	vim.cmd("e /caiman_shredder/setup.py")
 

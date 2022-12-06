@@ -20,7 +20,7 @@ local function load_workspace_mapper(mapper_config)
 end
 
 function Plugin:init(config)
-	self:parent("init", "jworkspace#")
+	self:parent("init", "jw")
 
 	Map:wrap(config)
 
@@ -33,8 +33,8 @@ function Plugin:init(config)
 	self._workspace_mappers = iter(workspace_mappers):map(load_workspace_mapper):to_list()
 	self._workspaces = List({})
 
-	self:bind_user_command("JWLoadWorkspace", "load_workspace", { nargs = "*" })
-	self:bind_user_command("JWActivateWorkspace", "activate_workspace", { nargs = 1 })
+	self:bind_user_command("load_workspace", { nargs = "*" })
+	self:bind_user_command("activate_workspace", { nargs = 1 })
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
 	self:bind_autocommand("BufAdd", "_on_buffer_add")
@@ -132,7 +132,7 @@ function Plugin:_load_workspace(root, name, trigger_path)
 
 	self._workspaces:push(new_workspace)
 	local workspace_id = #self._workspaces
-	self:execute_user_autocommand("workspace_loaded", { workspace = workspace_id, config = config })
+	self:execute_user_autocommand("WorkspaceLoaded", { workspace = workspace_id, config = config })
 	self:_activate_workspace(workspace_id)
 end
 
@@ -144,13 +144,13 @@ function Plugin:_activate_workspace(id)
 	end
 
 	if self._active_workspace_id ~= 0 then
-		self:execute_user_autocommand("workspace_deactivated", { workspace = self._active_workspace_id })
+		self:execute_user_autocommand("WorkspaceDeactivated", { workspace = self._active_workspace_id })
 	end
 
 	self._active_workspace_id = id
 
 	if self._active_workspace_id ~= 0 then
-		self:execute_user_autocommand("workspace_activated", { workspace = self._active_workspace_id })
+		self:execute_user_autocommand("WorkspaceActivated", { workspace = self._active_workspace_id })
 	end
 end
 
