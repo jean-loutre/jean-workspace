@@ -24,10 +24,14 @@ function Plugin:init(config)
 
 	Map:wrap(config)
 
-	self._workspaces = List({})
-	self._workspace_mappers = iter(config:pop("workspace_mappers", {})):map(load_workspace_mapper):to_list()
-	self._templates = iter(config:pop("templates", {})):map(Template):to_list()
+	local template_sources = config:pop("templates", {})
+	local template_loaders = config:pop("template_loaders", {})
+	local workspace_mappers = config:pop("workspace_mappers", {})
+
 	self._active_workspace_id = 0
+	self._templates = Template.load_templates(template_sources, template_loaders)
+	self._workspace_mappers = iter(workspace_mappers):map(load_workspace_mapper):to_list()
+	self._workspaces = List({})
 
 	self:bind_user_command("JWLoadWorkspace", "load_workspace", { nargs = "*" })
 	self:bind_user_command("JWActivateWorkspace", "activate_workspace", { nargs = 1 })

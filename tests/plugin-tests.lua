@@ -1,7 +1,12 @@
+local List = require("jlua.list")
 local Mock = require("jlua.mock")
-local TestSuite = require("jnvim.test-suite")
+local with = require("jlua.context").with
+
 local Autocommand = require("jnvim.autocommand")
+local TestSuite = require("jnvim.test-suite")
+
 local Plugin = require("jworkspace.plugin")
+local Template = require("jworkspace.template")
 
 local Suite = TestSuite()
 
@@ -40,6 +45,25 @@ function Suite.map_workspace()
 	local id = mock.call.data.workspace
 	assert_equals(vim.fn["jworkspace#get_workspace_name"](id), "Caiman Shredder")
 	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
+end
+
+function Suite.load_templates()
+	with(
+		Mock.patch(Template, "load_templates", function()
+			return List({ Template({
+				config = {
+					power = "12kw",
+				},
+			}) })
+		end),
+		function()
+			Plugin({})
+
+			local mock = mock_autocommand("workspace_loaded")
+			vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
+			assert_equals(mock.call.data.config, { power = "12kw" })
+		end
+	)
 end
 
 function Suite.apply_template()
