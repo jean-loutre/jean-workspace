@@ -139,6 +139,10 @@ end
 function Plugin:_activate_workspace(id)
 	assert(id == 0 or self._workspaces[id], "Invalid workspace id")
 
+	if self._active_workspace_id == id then
+		return
+	end
+
 	if self._active_workspace_id ~= 0 then
 		self:execute_user_autocommand("workspace_deactivated", { workspace = self._active_workspace_id })
 	end

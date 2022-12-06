@@ -166,8 +166,16 @@ function Suite.enable_workspace()
 	assert_equals(activated_mock.call.data.workspace, id)
 	assert_equals(#deactivated_mock.calls, 0)
 
+	activated_mock:reset()
+	deactivated_mock:reset()
+
+	-- Nothing happen if the workspace is already enabled
+	vim.cmd("JWActivateWorkspace " .. id)
+	assert_equals(#activated_mock.calls, 0)
+	assert_equals(#deactivated_mock.calls, 0)
+
 	vim.cmd("JWActivateWorkspace 0")
-	assert_equals(activated_mock.call.data.workspace, id)
+	assert_equals(#activated_mock.calls, 0)
 	assert_equals(deactivated_mock.call.data.workspace, id)
 end
 
