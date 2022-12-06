@@ -146,7 +146,7 @@ function Suite.file_filters()
 	assert_equals(vim.fn["jworkspace#get_workspace_root"](id), "/caiman_shredder")
 end
 
-function Suite.enable_workspace()
+function Suite.activate_workspace()
 	Plugin({})
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
@@ -169,7 +169,7 @@ function Suite.enable_workspace()
 	activated_mock:reset()
 	deactivated_mock:reset()
 
-	-- Nothing happen if the workspace is already enabled
+	-- Nothing happen if the workspace is already activated
 	vim.cmd("JWActivateWorkspace " .. id)
 	assert_equals(#activated_mock.calls, 0)
 	assert_equals(#deactivated_mock.calls, 0)
@@ -179,7 +179,7 @@ function Suite.enable_workspace()
 	assert_equals(deactivated_mock.call.data.workspace, id)
 end
 
-function Suite.enable_workspace_on_load()
+function Suite.activate_workspace_on_load()
 	Plugin({})
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
@@ -192,7 +192,7 @@ function Suite.enable_workspace_on_load()
 	assert_equals(loaded_mock.data.workspace, activated_mock.data.workspace)
 end
 
-function Suite.enable_workspace_on_buffer_switch()
+function Suite.activate_workspace_on_buffer_switch()
 	Plugin({
 		workspace_mappers = {
 			function(buffer)
