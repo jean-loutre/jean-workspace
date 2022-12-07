@@ -15,4 +15,12 @@ function Suite.load_table()
 
 	assert_equals(load_templates(templates):to_list(), templates)
 end
+
+function Suite.load_lua_module()
+	local function caiman_shredder() end
+	package.loaded["caiman_shredder"] = caiman_shredder
+
+	assert_equals(load_templates("module:caiman_shredder"):to_list(), { caiman_shredder })
+end
+
 return Suite
