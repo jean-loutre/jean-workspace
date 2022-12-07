@@ -1,12 +1,9 @@
-local List = require("jlua.list")
 local Mock = require("jlua.mock")
-local with = require("jlua.context").with
 
 local Autocommand = require("jnvim.autocommand")
 local TestSuite = require("jnvim.test-suite")
 
 local Plugin = require("jworkspace.plugin")
-local Template = require("jworkspace.template")
 
 local Suite = TestSuite()
 
@@ -47,38 +44,16 @@ function Suite.map_workspace()
 	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
 end
 
-function Suite.load_templates()
-	with(
-		Mock.patch(Template, "load_templates", function()
-			return List({ Template({
-				config = {
-					power = "12kw",
-				},
-			}) })
-		end),
-		function()
-			Plugin({})
-
-			local mock = mock_autocommand("WorkspaceLoaded")
-			vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
-			assert_equals(mock.call.data.config, { power = "12kw" })
-		end
-	)
-end
-
 function Suite.apply_template()
 	Plugin({
 		templates = {
-			{
-				workspace_filters = {
-					function(_, name)
-						return name == "caiman_shredder"
-					end,
-				},
-				config = {
-					power = "12kw",
-				},
-			},
+			function(_, name)
+				if name == "caiman_shredder" then
+					return {
+						power = "12kw",
+					}
+				end
+			end,
 		},
 	})
 
@@ -95,16 +70,16 @@ end
 function Suite.merge_templates()
 	Plugin({
 		templates = {
-			{
-				config = {
+			function()
+				return {
 					power = "12kw",
-				},
-			},
-			{
-				config = {
+				}
+			end,
+			function()
+				return {
 					rpm = 15000,
-				},
-			},
+				}
+			end,
 		},
 	})
 
@@ -122,15 +97,15 @@ function Suite.file_filters()
 			end,
 		},
 		templates = {
-			{
-				config = {
+			function()
+				return {
 					file_filters = {
 						function(path)
 							return path.basename == "dinglepop.lua"
 						end,
 					},
-				},
-			},
+				}
+			end,
 		},
 	})
 

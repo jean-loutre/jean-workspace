@@ -7,7 +7,7 @@ local is_callable = require("jlua.type").is_callable
 local BoundContext = require("jnvim.bound-context")
 local Path = require("jnvim.path")
 
-local Template = require("jworkspace.template")
+local load_templates = require("jworkspace.template").load_templates
 local Workspace = require("jworkspace.workspace")
 
 local Plugin = BoundContext:extend()
@@ -24,12 +24,10 @@ function Plugin:init(config)
 
 	Map:wrap(config)
 
-	local template_sources = config:pop("templates", {})
-	local template_loaders = config:pop("template_loaders", {})
 	local workspace_mappers = config:pop("workspace_mappers", {})
 
 	self._active_workspace_id = 0
-	self._templates = Template.load_templates(template_sources, template_loaders)
+	self._templates = config:pop("templates", {})
 	self._workspace_mappers = iter(workspace_mappers):map(load_workspace_mapper):to_list()
 	self._workspaces = List({})
 
@@ -115,14 +113,10 @@ function Plugin:_on_buffer_enter(args)
 end
 
 function Plugin:_load_workspace(root, name, trigger_path)
-	local config = {}
-	local matching_templates = self._templates:filter(function(template_it)
-		return template_it:matches(root, name)
-	end)
-
-	for template_it in matching_templates do
-		Map.deep_update(config, template_it.workspace_config or {})
-	end
+	local config = load_templates(self._templates):reduce(function(config, template_it)
+		Map.update(config, template_it(root, name) or {})
+		return config
+	end, {})
 
 	local new_workspace = Workspace(Path(root), name, config)
 
