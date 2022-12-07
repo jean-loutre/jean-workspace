@@ -23,4 +23,11 @@ function Suite.load_lua_module()
 	assert_equals(load_templates("module:caiman_shredder"):to_list(), { caiman_shredder })
 end
 
+function Suite.load_lua_file()
+	local templates = load_templates("file:tests/data/templates/caiman_shredder.lua")
+	local template = templates() -- iterator next
+	assert_is_nil(templates())
+	assert_equals(template(), { power = "12kw" })
+end
+
 return Suite

@@ -4,6 +4,8 @@ local is_string = require("jlua.type").is_string
 local is_table = require("jlua.type").is_table
 local iter = require("jlua.iterator").iter
 
+local Path = require("jnvim.path")
+
 local template = {}
 
 local function split_source(source)
@@ -27,8 +29,30 @@ local function load_module(name)
 	return require(name)
 end
 
+local function load_lua_file(path)
+	local script = loadfile(tostring(path))
+	assert(script ~= nil)
+	return script()
+end
+
+local FILE_LOADERS = {
+	lua = load_lua_file,
+}
+
+local function load_file(name)
+	local file_path = Path(name)
+	local extension = file_path.extension
+	local loader = FILE_LOADERS[extension]
+	if not loader then
+		error("Unable to load file of type " .. extension)
+	end
+
+	return loader(file_path)
+end
+
 local loaders = {
 	module = load_module,
+	file = load_file,
 }
 
 --- Load a workspace configuration template from a source.
