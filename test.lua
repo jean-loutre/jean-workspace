@@ -9,6 +9,7 @@ local function run()
 			"./third-party/?.lua",
 			"./third-party/jean-nvim/lua/?.lua",
 			"./third-party/jean-nvim/third-party/jean-lua/lua/?.lua",
+			"./third-party/lua-yaml/?.lua",
 		}, ";")
 
 	pcall(function()

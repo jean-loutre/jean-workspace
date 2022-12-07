@@ -17,6 +17,7 @@ end
 add_third_party_path("?.lua")
 add_third_party_path("./jean-vim/lua/?.lua")
 add_third_party_path("./jean-vim/third-party/jean-lua/lua/?.lua")
+add_third_party_path("./lua-yaml/?.lua")
 
 return {
 	setup = function(_) end,

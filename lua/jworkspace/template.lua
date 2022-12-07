@@ -3,6 +3,9 @@ local is_callable = require("jlua.type").is_callable
 local is_string = require("jlua.type").is_string
 local is_table = require("jlua.type").is_table
 local iter = require("jlua.iterator").iter
+local with = require("jlua.context").with
+
+local yaml = require("yaml")
 
 local Path = require("jnvim.path")
 
@@ -35,8 +38,20 @@ local function load_lua_file(path)
 	return script()
 end
 
+local function load_yaml_file(path)
+	return with(path:open("r"), function(file)
+		local content = file:read("*all")
+		return function()
+			return yaml.eval(content)
+		end
+	end)
+end
+
 local FILE_LOADERS = {
 	lua = load_lua_file,
+	yml = load_yaml_file,
+	yaml = load_yaml_file,
+	json = load_yaml_file,
 }
 
 local function load_file(name)
@@ -50,7 +65,7 @@ local function load_file(name)
 	return loader(file_path)
 end
 
-local loaders = {
+local LOADERS = {
 	module = load_module,
 	file = load_file,
 }
@@ -79,7 +94,7 @@ function template.load_templates(sources)
 		return iter(sources):map(template.load_templates):flatten()
 	elseif is_string(sources) then
 		local source_type, source_name = split_source(sources)
-		local loader = loaders[source_type]
+		local loader = LOADERS[source_type]
 		assert(loader, "Unknown source type " .. source_type)
 		return template.load_templates(loader(source_name))
 	end

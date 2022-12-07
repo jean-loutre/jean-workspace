@@ -1,3 +1,5 @@
+local iter = require("jlua.iterator").iter
+
 local TestSuite = require("jnvim.test-suite")
 local load_templates = require("jworkspace.template").load_templates
 
@@ -26,8 +28,19 @@ end
 function Suite.load_lua_file()
 	local templates = load_templates("file:tests/data/templates/caiman_shredder.lua")
 	local template = templates() -- iterator next
+
 	assert_is_nil(templates())
 	assert_equals(template(), { power = "12kw" })
+end
+
+function Suite.load_yaml_file()
+	for extension in iter({ "yml", "yaml", "json" }) do
+		local templates = load_templates("file:tests/data/templates/caiman_shredder." .. extension)
+		local template = templates() -- iterator next
+
+		assert_is_nil(templates())
+		assert_equals(template(), { rpm = 15264 })
+	end
 end
 
 return Suite

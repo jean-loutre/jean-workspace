@@ -1,3 +1,6 @@
 [submodule "third-party/jean-nvim"]
 	path = third-party/jean-nvim
 	url = https://github.com/jean-loutre/jean-nvim
+[submodule "third-party/lua-yaml"]
+	path = third-party/lua-yaml
+	url = https://github.com/exosite/lua-yaml
