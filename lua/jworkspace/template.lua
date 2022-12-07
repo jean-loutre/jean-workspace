@@ -31,24 +31,23 @@ local loaders = {
 	module = load_module,
 }
 
---- Load templates from a source list.
+--- Load a workspace configuration template from a source.
 --
 -- Parameters
 -- ----------
--- sources : { table | str }
---     Source list. Each item can be an array, in which case it'll be
---     considered as the template config itself, or a path glob. For
---     each path glob, all files with an extension matching one of the
---     loaders will be loaded.
--- loaders : { { extensions={str}, load=function(Path)-> table } }
--- 		List of loaders. Each loader must have a list of extensions it
--- 		can handle, and a load method taking path as input, and returning
--- 		template config as output.
+-- source : function | { source } | str
+--     Source.
+--      * If it's callable (function or class with __call member), will return
+--        the source itself.
+--      * If it's a table, will return the result of load_templates on each
+--        element of the table.
+--      * If it's a string, will try to load the pointed ressource.
+--        TODO: add documentation about this.
 --
 -- Returns
 -- -------
--- `jlua.iterator[Template]`
---      An iterator of templates loaded from the given sources.
+-- `jlua.iterator[{str=*]`
+--      The resulting workspace configuration.
 function template.load_templates(sources)
 	if is_callable(sources) then
 		return iter({ sources })
