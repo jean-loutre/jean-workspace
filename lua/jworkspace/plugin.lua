@@ -7,8 +7,9 @@ local is_callable = require("jlua.type").is_callable
 local BoundContext = require("jnvim.bound-context")
 local Path = require("jnvim.path")
 
-local load_templates = require("jworkspace.template").load_templates
 local Workspace = require("jworkspace.workspace")
+local load_templates = require("jworkspace.template").load_templates
+local constants = require("jworkspace.template")
 
 local Plugin = BoundContext:extend()
 
@@ -21,13 +22,13 @@ end
 
 function Plugin:init(config)
 	self:parent("init", "jw")
+	self._config = Map(constants.default_config)
+	self._config:update(config)
 
-	Map:wrap(config)
-
-	local workspace_mappers = config:pop("workspace_mappers", {})
+	local workspace_mappers = self._config:pop("workspace_mappers", {})
 
 	self._active_workspace_id = 0
-	self._templates = config:pop("templates", {})
+	self._templates = self._config:pop("templates", {})
 	self._workspace_mappers = iter(workspace_mappers):map(load_workspace_mapper):to_list()
 	self._workspaces = List({})
 
