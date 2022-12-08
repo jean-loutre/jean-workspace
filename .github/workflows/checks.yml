@@ -52,7 +52,7 @@ jobs:
           sudo apt-get install -y neovim
 
       - name: Install Coverage Dependencies
-        if: ${{ matrix.neovim_repo == 'stable' }}
+        if: ${{ matrix.neovim_repo == 'unstable' }}
         run: |
           sudo apt-get install -y luarocks
           sudo luarocks install luacov-coveralls
@@ -61,7 +61,7 @@ jobs:
         run: nvim -u NONE --headless --cmd "luafile test.lua"
 
       - name: Upload Coverage
-        if: ${{ matrix.neovim_repo == 'stable' }}
+        if: ${{ matrix.neovim_repo == 'unstable' }}
         run: |
           luacov-coveralls
         env:
