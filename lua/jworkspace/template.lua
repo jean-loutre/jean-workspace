@@ -93,7 +93,9 @@ function template.load_templates(source)
 		return iter({ source })
 	elseif is_table(source) then
 		local first_key = next(source)
-		if type(first_key) == "number" then
+		if first_key == nil then
+			return iter({})
+		elseif type(first_key) == "number" then
 			local id = 0
 			return iter(function()
 				id = id + 1

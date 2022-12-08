@@ -1,6 +1,6 @@
 local TestSuite = require("jnvim.test-suite")
 
-local in_source_templates = require("jworkspace.builtins.common.in-source-templates")
+local in_source_templates = require("jworkspace.builtin.common.in-source-templates")
 
 local Suite = TestSuite()
 

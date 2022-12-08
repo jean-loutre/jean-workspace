@@ -16,7 +16,7 @@ local function run()
 		require("luacov")
 	end)
 
-	local suites = { "plugin-tests", "template-tests", "builtins-common-tests" }
+	local suites = { "plugin-tests", "template-tests", "builtin-common-tests" }
 
 	-- To make assert functions globally accessible
 	for key, value in pairs(require("luaunit")) do

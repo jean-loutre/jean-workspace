@@ -187,4 +187,11 @@ function Suite.activate_workspace_on_buffer_switch()
 	assert_equals(activated_mock.call.data.workspace, electrifier_id)
 end
 
+function Suite.load_builtin()
+	Plugin({
+		templates = { "jworkspace.builtin" },
+	})
+	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
+end
+
 return Suite
