@@ -46,15 +46,13 @@ end
 
 function Suite.apply_template()
 	Plugin({
-		templates = {
-			function(_, name)
-				if name == "caiman_shredder" then
-					return {
-						power = "12kw",
-					}
-				end
-			end,
-		},
+		templates = function(_, name)
+			if name == "caiman_shredder" then
+				return {
+					power = "12kw",
+				}
+			end
+		end,
 	})
 
 	local mock = mock_autocommand("WorkspaceLoaded")
@@ -70,16 +68,8 @@ end
 function Suite.merge_templates()
 	Plugin({
 		templates = {
-			function()
-				return {
-					power = "12kw",
-				}
-			end,
-			function()
-				return {
-					rpm = 15000,
-				}
-			end,
+			{ power = "12kw" },
+			{ rpm = 15000 },
 		},
 	})
 
@@ -97,15 +87,11 @@ function Suite.file_filters()
 			end,
 		},
 		templates = {
-			function()
-				return {
-					file_filters = {
-						function(path)
-							return path.basename == "dinglepop.lua"
-						end,
-					},
-				}
-			end,
+			file_filters = {
+				function(path)
+					return path.basename == "dinglepop.lua"
+				end,
+			},
 		},
 	})
 

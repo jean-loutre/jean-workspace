@@ -92,7 +92,20 @@ function template.load_templates(source)
 	if is_callable(source) then
 		return iter({ source })
 	elseif is_table(source) then
-		return iter(source):map(template.load_templates):flatten()
+		local first_key = next(source)
+		if type(first_key) == "number" then
+			local id = 0
+			return iter(function()
+				id = id + 1
+				return source[id]
+			end):map(template.load_templates):flatten()
+		end
+
+		return iter({
+			function()
+				return source
+			end,
+		})
 	elseif is_string(source) then
 		local source_type, source_name = split_source(source)
 		local loader = LOADERS[source_type]
