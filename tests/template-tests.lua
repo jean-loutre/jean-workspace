@@ -22,7 +22,9 @@ function Suite.load_lua_module()
 	local function caiman_shredder() end
 	package.loaded["caiman_shredder"] = caiman_shredder
 
-	assert_equals(load_templates("module:caiman_shredder"):to_list(), { caiman_shredder })
+	-- Default loader is lua module
+	assert_equals(load_templates("caiman_shredder"):to_list(), { caiman_shredder })
+	assert_equals(load_templates("require:caiman_shredder"):to_list(), { caiman_shredder })
 end
 
 function Suite.load_lua_file()

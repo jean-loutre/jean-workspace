@@ -18,7 +18,7 @@ local function split_source(source)
 	local source_type
 	local source_name
 	if type_start == nil then
-		source_type = "module"
+		source_type = "require"
 		source_name = source
 	else
 		source_type = string.sub(source, type_start, type_end - 1)
@@ -28,14 +28,15 @@ local function split_source(source)
 	return source_type, source_name
 end
 
-local function load_module(name)
+local function require_module(name)
 	return require(name)
 end
 
 local function load_lua_file(path)
 	local script = loadfile(tostring(path))
 	assert(script ~= nil)
-	return script()
+	local result = script()
+	return result
 end
 
 local function load_yaml_file(path)
@@ -66,7 +67,7 @@ local function load_file(name)
 end
 
 local LOADERS = {
-	module = load_module,
+	["require"] = require_module,
 	file = load_file,
 }
 
