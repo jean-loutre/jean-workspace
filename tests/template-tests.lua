@@ -1,3 +1,4 @@
+local Map = require("jlua.map")
 local iter = require("jlua.iterator").iter
 
 local TestSuite = require("jnvim.test-suite")
@@ -43,6 +44,17 @@ function Suite.load_yaml_file()
 		assert_is_nil(templates())
 		assert_equals(template(), { rpm = 15264 })
 	end
+end
+
+function Suite.load_glob()
+	local result = load_templates("glob:tests/data/templates/caiman_shredder.*"):reduce(function(result, template)
+		Map.update(result, template())
+		return result
+	end, {})
+	assert_equals(result, {
+		power = "12kw",
+		rpm = 15264,
+	})
 end
 
 return Suite

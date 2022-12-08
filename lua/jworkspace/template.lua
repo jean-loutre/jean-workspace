@@ -66,9 +66,18 @@ local function load_file(name)
 	return loader(file_path)
 end
 
+local function load_glob(glob)
+	return Path.glob(glob)
+		:map(function(path)
+			return "file:" .. tostring(path)
+		end)
+		:to_list()
+end
+
 local LOADERS = {
 	["require"] = require_module,
 	file = load_file,
+	glob = load_glob,
 }
 
 --- Load a workspace configuration template from a source.
