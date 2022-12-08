@@ -5,6 +5,7 @@ local function run()
 		.. ";"
 		.. table.concat({
 			"./lua/?.lua",
+			"./lua/?/init.lua",
 			"./tests/?.lua",
 			"./third-party/?.lua",
 			"./third-party/jean-nvim/lua/?.lua",
