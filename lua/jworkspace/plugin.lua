@@ -4,14 +4,14 @@ local List = require("jlua.list")
 local Map = require("jlua.map")
 local is_callable = require("jlua.type").is_callable
 
-local BoundContext = require("jnvim.bound-context")
+local ContextHandler = require("jnvim.context-handler")
 local Path = require("jnvim.path")
 
 local Workspace = require("jworkspace.workspace")
 local load_templates = require("jworkspace.template").load_templates
 local constants = require("jworkspace.template")
 
-local Plugin = BoundContext:extend()
+local Plugin = ContextHandler:extend()
 
 local function load_workspace_mapper(mapper_config)
 	if is_callable(mapper_config) then
@@ -34,11 +34,18 @@ function Plugin:init(config)
 
 	self:bind_user_command("load_workspace", { nargs = "*" })
 	self:bind_user_command("activate_workspace", { nargs = 1 })
+	self:bind_function("get_active_workspace")
+	self:bind_function("get_workspace_config")
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
 	self:bind_autocommand("BufAdd", "_on_buffer_add")
 	self:bind_autocommand("BufEnter", "_on_buffer_enter")
 	self:enable()
+end
+
+--- Return the active workspace id
+function Plugin:get_active_workspace()
+	return self._active_workspace_id
 end
 
 --- Create a new workspace
@@ -62,6 +69,7 @@ end
 -- handle : int, optional
 --     Handle of the workspace. If none, will return the name of the active workspace.
 function Plugin:get_workspace_name(id)
+	id = id or self._active_workspace_id
 	assert(self._workspaces[id], "Invalid workspace id")
 	return self._workspaces[id].name
 end
@@ -73,8 +81,21 @@ end
 -- handle : int, optional
 --     Handle of the workspace. If none, will return the name of the active workspace.
 function Plugin:get_workspace_root(id)
+	id = id or self._active_workspace_id
 	assert(self._workspaces[id], "Invalid workspace id")
 	return tostring(self._workspaces[id].root)
+end
+
+--- Return the configuration of the workspace with the given id.
+--
+-- Parameters
+-- ----------
+-- handle : int, optional
+--     Handle of the workspace. If none, will return the config of the active workspace.
+function Plugin:get_workspace_config(id)
+	id = id or self._active_workspace_id
+	assert(self._workspaces[id], "Invalid workspace id")
+	return self._workspaces[id].config
 end
 
 --- Activate a workspace.

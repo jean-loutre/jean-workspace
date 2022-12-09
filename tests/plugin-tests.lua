@@ -1,4 +1,4 @@
-local Mock = require("jlua.mock")
+local Mock = require("jlua.test.mock")
 
 local Autocommand = require("jnvim.autocommand")
 local TestSuite = require("jnvim.test-suite")
@@ -20,9 +20,9 @@ function Suite.load_workspace()
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
-	local id = mock.call.data.workspace
-	assert_equals(vim.fn["jw#get_workspace_name"](id), "caiman_shredder")
-	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
+	assert_equals(#mock.calls, 1)
+	assert_equals(vim.fn["jw#get_workspace_name"](), "caiman_shredder")
+	assert_equals(vim.fn["jw#get_workspace_root"](), "/caiman_shredder")
 end
 
 function Suite.map_workspace()
@@ -39,9 +39,9 @@ function Suite.map_workspace()
 
 	vim.cmd("e /caiman_shredder/setup.py")
 
-	local id = mock.call.data.workspace
-	assert_equals(vim.fn["jw#get_workspace_name"](id), "Caiman Shredder")
-	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
+	assert_equals(#mock.calls, 1)
+	assert_equals(vim.fn["jw#get_workspace_name"](), "Caiman Shredder")
+	assert_equals(vim.fn["jw#get_workspace_root"](), "/caiman_shredder")
 end
 
 function Suite.apply_template()
@@ -58,11 +58,13 @@ function Suite.apply_template()
 	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("JWLoadWorkspace /caiman_electrifier caiman_electrifier")
-	assert_equals(mock.call.data.config, {})
+	assert_equals(#mock.calls, 1)
+	assert_equals(vim.fn["jw#get_workspace_config"](), {})
 
 	mock:reset()
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
-	assert_equals(mock.call.data.config, { power = "12kw" })
+	assert_equals(#mock.calls, 1)
+	assert_equals(vim.fn["jw#get_workspace_config"](), { power = "12kw" })
 end
 
 function Suite.merge_templates()
@@ -76,7 +78,8 @@ function Suite.merge_templates()
 	local mock = mock_autocommand("WorkspaceLoaded")
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
-	assert_equals(mock.call.data.config, { power = "12kw", rpm = 15000 })
+	assert_equals(#mock.calls, 1)
+	assert_equals(vim.fn["jw#get_workspace_config"](), { power = "12kw", rpm = 15000 })
 end
 
 function Suite.file_filters()
@@ -102,9 +105,9 @@ function Suite.file_filters()
 
 	vim.cmd("e /caiman_shredder/dinglepop.lua")
 
-	local id = mock.call.data.workspace
-	assert_equals(vim.fn["jw#get_workspace_name"](id), "Caiman Shredder")
-	assert_equals(vim.fn["jw#get_workspace_root"](id), "/caiman_shredder")
+	assert_equals(#mock.calls, 1)
+	assert_equals(vim.fn["jw#get_workspace_name"](), "Caiman Shredder")
+	assert_equals(vim.fn["jw#get_workspace_root"](), "/caiman_shredder")
 end
 
 function Suite.activate_workspace()
@@ -112,11 +115,7 @@ function Suite.activate_workspace()
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
 
-	local loaded_mock = mock_autocommand("WorkspaceLoaded")
-
-	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
-
-	local id = loaded_mock.call.data.workspace
+	local id = vim.fn["jw#get_active_workspace"]()
 
 	vim.cmd("JWActivateWorkspace 0")
 
@@ -124,8 +123,9 @@ function Suite.activate_workspace()
 	local deactivated_mock = mock_autocommand("WorkspaceDeactivated")
 
 	vim.cmd("JWActivateWorkspace " .. id)
-	assert_equals(activated_mock.call.data.workspace, id)
+	assert_equals(#activated_mock.calls, 1)
 	assert_equals(#deactivated_mock.calls, 0)
+	assert_equals(vim.fn["jw#get_active_workspace"](), id)
 
 	activated_mock:reset()
 	deactivated_mock:reset()
@@ -137,20 +137,15 @@ function Suite.activate_workspace()
 
 	vim.cmd("JWActivateWorkspace 0")
 	assert_equals(#activated_mock.calls, 0)
-	assert_equals(deactivated_mock.call.data.workspace, id)
+	assert_equals(#deactivated_mock.calls, 1)
 end
 
 function Suite.activate_workspace_on_load()
 	Plugin({})
+	local mock = mock_autocommand("WorkspaceActivated")
 
 	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
-
-	local loaded_mock = mock_autocommand("WorkspaceLoaded")
-	local activated_mock = mock_autocommand("WorkspaceActivated")
-
-	vim.cmd("JWLoadWorkspace /caiman_shredder caiman_shredder")
-
-	assert_equals(loaded_mock.data.workspace, activated_mock.data.workspace)
+	assert_equals(#mock.calls, 1)
 end
 
 function Suite.activate_workspace_on_buffer_switch()
@@ -165,26 +160,28 @@ function Suite.activate_workspace_on_buffer_switch()
 		},
 	})
 
-	local loaded_mock = mock_autocommand("WorkspaceLoaded")
 	vim.cmd("e /caiman_shredder/setup.py")
+	local shredder_id = vim.fn["jw#get_active_workspace"]()
+
 	vim.cmd("e /caiman_electrifier/setup.py")
-	local shredder_id = loaded_mock.calls[1][1].data.workspace
-	local electrifier_id = loaded_mock.calls[2][1].data.workspace
+	local electrifier_id = vim.fn["jw#get_active_workspace"]()
 
 	local activated_mock = mock_autocommand("WorkspaceActivated")
 	local deactivated_mock = mock_autocommand("WorkspaceDeactivated")
 
 	vim.cmd("e /caiman_shredder/setup.py")
 
-	assert_equals(deactivated_mock.call.data.workspace, electrifier_id)
-	assert_equals(activated_mock.call.data.workspace, shredder_id)
+	assert_equals(#deactivated_mock.calls, 1)
+	assert_equals(#activated_mock.calls, 1)
+	assert_equals(vim.fn["jw#get_active_workspace"](), shredder_id)
 
 	activated_mock:reset()
 	deactivated_mock:reset()
 
 	vim.cmd("e /caiman_electrifier/setup.py")
-	assert_equals(deactivated_mock.call.data.workspace, shredder_id)
-	assert_equals(activated_mock.call.data.workspace, electrifier_id)
+	assert_equals(#deactivated_mock.calls, 1)
+	assert_equals(#activated_mock.calls, 1)
+	assert_equals(vim.fn["jw#get_active_workspace"](), electrifier_id)
 end
 
 function Suite.load_builtin()

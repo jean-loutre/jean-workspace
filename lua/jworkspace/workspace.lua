@@ -10,6 +10,7 @@ function Workspace:init(root, name, config)
 	config = config or {}
 	self._root = root
 	self._name = name
+	self._config = config
 	self._file_filters = List(Map.pop(config, "file_filters", {}))
 end
 
@@ -21,6 +22,11 @@ end
 --- Get the workspace root directory
 function Workspace.properties.root:get()
 	return self._root
+end
+
+--- Get the workspace configuration
+function Workspace.properties.config:get()
+	return self._config
 end
 
 --- Check if a file belongs to this workspace.
