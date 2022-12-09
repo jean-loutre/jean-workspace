@@ -37,7 +37,7 @@ jobs:
     strategy:
           fail-fast: false
           matrix:
-            neovim_repo: [unstable]
+            neovim_repo: [stable, unstable]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
