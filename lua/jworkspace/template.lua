@@ -98,6 +98,8 @@ local LOADERS = {
 -- `jlua.iterator[{str=*]`
 --      The resulting workspace configuration.
 function template.load_templates(source)
+	assert(is_callable(source) or is_table(source) or is_string(source), "Bad argument")
+
 	if is_callable(source) then
 		return iter({ source })
 	elseif is_table(source) then
@@ -117,14 +119,12 @@ function template.load_templates(source)
 				return source
 			end,
 		})
-	elseif is_string(source) then
-		local source_type, source_name = split_source(source)
-		local loader = LOADERS[source_type]
-		assert(loader, "Unknown source type " .. source_type)
-		return template.load_templates(loader(source_name))
 	end
 
-	assert(false, "Bad argument")
+	local source_type, source_name = split_source(source)
+	local loader = LOADERS[source_type]
+	assert(loader, "Unknown source type " .. source_type)
+	return template.load_templates(loader(source_name))
 end
 
 return template
