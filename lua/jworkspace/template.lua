@@ -1,4 +1,5 @@
 --- Templates allow to define skeletons for workspaces
+local Map = require("jlua.map")
 local is_callable = require("jlua.type").is_callable
 local is_string = require("jlua.type").is_string
 local is_table = require("jlua.type").is_table
@@ -115,8 +116,8 @@ function template.load_templates(source)
 		end
 
 		return iter({
-			function()
-				return source
+			function(_, _, config)
+				return Map.update(config, source)
 			end,
 		})
 	end

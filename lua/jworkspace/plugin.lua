@@ -136,8 +136,7 @@ end
 
 function Plugin:_load_workspace(root, name, trigger_path)
 	local config = load_templates(self._templates):reduce(function(config, template_it)
-		Map.update(config, template_it(root, name) or {})
-		return config
+		return template_it(root, name, config)
 	end, {})
 
 	local new_workspace = Workspace(Path(root), name, config)
