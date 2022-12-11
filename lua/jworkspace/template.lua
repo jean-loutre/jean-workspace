@@ -98,22 +98,24 @@ local LOADERS = {
 -- `jlua.iterator[{str=*]`
 --      The resulting workspace configuration.
 function template.load_templates(root, name, config, source)
-	if is_callable(source) then
-		return template.load_templates(root, name, config, source(root, name, config) or {})
-	elseif is_table(source) then
-		for key, import in ipairs(source) do
-			assert(import)
-			config = template.load_templates(root, name, config, import) or {}
-			source[key] = nil
+	repeat
+		if is_callable(source) then
+			source = source(root, name, config) or {}
+		elseif is_string(source) then
+			local source_type, source_name = split_source(source)
+			local loader = LOADERS[source_type]
+			assert(loader, "Unknown source type " .. source_type)
+			source = loader(source_name) or {}
 		end
+	until is_table(source)
 
-		return Map.update(config, source)
+	for key, import in ipairs(source) do
+		assert(import)
+		config = template.load_templates(root, name, config, import) or {}
+		source[key] = nil
 	end
 
-	local source_type, source_name = split_source(source)
-	local loader = LOADERS[source_type]
-	assert(loader, "Unknown source type " .. source_type)
-	return template.load_templates(root, name, config, loader(source_name))
+	return Map.update(config, source)
 end
 
 return template
