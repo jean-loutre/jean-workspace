@@ -6,10 +6,15 @@ local load_templates = require("jworkspace.template").load_templates
 local Suite = TestSuite()
 
 function Suite.load_function()
-	local function caiman_shredder()
+	local function template(root, name, config)
+		assert_equals(root, "/caiman_shredder")
+		assert_equals(name, "caiman_shredder")
+		assert_equals(config, {})
 		return { power = "12kw" }
 	end
-	assert_equals(load_templates("", "", {}, caiman_shredder), { power = "12kw" })
+
+	local config = load_templates("/caiman_shredder", "caiman_shredder", {}, template)
+	assert_equals(config, { power = "12kw" })
 end
 
 function Suite.load_table_import()
