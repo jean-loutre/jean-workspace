@@ -1,8 +1,9 @@
 --- The Jean Workspace plugin instance
-local iter = require("jlua.iterator").iter
 local List = require("jlua.list")
 local Map = require("jlua.map")
 local is_callable = require("jlua.type").is_callable
+local is_string = require("jlua.type").is_string
+local iter = require("jlua.iterator").iter
 
 local ContextHandler = require("jnvim.context-handler")
 local Path = require("jnvim.path")
@@ -59,7 +60,7 @@ end
 function Plugin:load_workspace(args)
 	local root = Path(args.fargs[1] or Path.cwd())
 	local name = args.fargs[2] or root.basename
-	self:_load_workspace(root, name)
+	self:_load_workspace(tostring(root), name)
 end
 
 --- Return the name of the workspace with the given id
@@ -117,6 +118,8 @@ function Plugin:_on_buffer_add(args)
 		:first()
 
 	if root and name then
+		assert(is_string(root))
+		assert(is_string(name))
 		self:_load_workspace(root, name, Path(args.buf.name))
 	end
 end
@@ -135,10 +138,10 @@ function Plugin:_on_buffer_enter(args)
 end
 
 function Plugin:_load_workspace(root, name, trigger_path)
-	local config = load_templates(self._templates):reduce(function(config, template_it)
-		return template_it(root, name, config)
-	end, {})
-
+	assert(is_string(root))
+	assert(is_string(name))
+	assert(trigger_path == nil or Path:is_class_of(trigger_path))
+	local config = load_templates(root, name, {}, self._templates)
 	local new_workspace = Workspace(Path(root), name, config)
 
 	if trigger_path ~= nil and not new_workspace:matches_file(trigger_path) then

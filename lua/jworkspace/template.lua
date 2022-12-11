@@ -3,7 +3,6 @@ local Map = require("jlua.map")
 local is_callable = require("jlua.type").is_callable
 local is_string = require("jlua.type").is_string
 local is_table = require("jlua.type").is_table
-local iter = require("jlua.iterator").iter
 local with = require("jlua.context").with
 
 local yaml = require("yaml")
@@ -98,34 +97,21 @@ local LOADERS = {
 -- -------
 -- `jlua.iterator[{str=*]`
 --      The resulting workspace configuration.
-function template.load_templates(source)
-	assert(is_callable(source) or is_table(source) or is_string(source), "Bad argument")
-
+function template.load_templates(root, name, config, source)
 	if is_callable(source) then
-		return iter({ source })
+		return template.load_templates(root, name, config, source(root, name, config) or {})
 	elseif is_table(source) then
-		local first_key = next(source)
-		if first_key == nil then
-			return iter({})
-		elseif type(first_key) == "number" then
-			local id = 0
-			return iter(function()
-				id = id + 1
-				return source[id]
-			end):map(template.load_templates):flatten()
+		for _, import in ipairs(source) do
+			config = template.load_templates(root, name, config, import)
 		end
 
-		return iter({
-			function(_, _, config)
-				return Map.update(config, source)
-			end,
-		})
+		return Map.update(config, source)
 	end
 
 	local source_type, source_name = split_source(source)
 	local loader = LOADERS[source_type]
 	assert(loader, "Unknown source type " .. source_type)
-	return template.load_templates(loader(source_name))
+	return template.load_templates(root, name, config, loader(source_name))
 end
 
 return template

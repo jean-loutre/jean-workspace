@@ -1,5 +1,3 @@
-return function()
-	return {
-		power = "12kw",
-	}
-end
+return {
+	power = "12kw",
+}

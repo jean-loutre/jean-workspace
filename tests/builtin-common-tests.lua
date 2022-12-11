@@ -6,10 +6,7 @@ local Suite = TestSuite()
 
 function Suite.in_source_templates()
 	local templates = in_source_templates("tests/data/caiman_shredder", "Caiman Shredder")
-	assert_equals(templates, {
-		"file:tests/data/caiman_shredder/.workspace.lua",
-		"file:tests/data/caiman_shredder/.workspace.yml",
-	})
+	assert_equals(templates, "glob:tests/data/caiman_shredder/.workspace.*")
 end
 
 return Suite
