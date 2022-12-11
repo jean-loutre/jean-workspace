@@ -101,8 +101,10 @@ function template.load_templates(root, name, config, source)
 	if is_callable(source) then
 		return template.load_templates(root, name, config, source(root, name, config) or {})
 	elseif is_table(source) then
-		for _, import in ipairs(source) do
-			config = template.load_templates(root, name, config, import)
+		for key, import in ipairs(source) do
+			assert(import)
+			config = template.load_templates(root, name, config, import) or {}
+			source[key] = nil
 		end
 
 		return Map.update(config, source)

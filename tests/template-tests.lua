@@ -18,15 +18,21 @@ function Suite.load_function()
 end
 
 function Suite.load_table_import()
-	local function caiman_shredder()
+	local function caiman_shredder(root, name)
+		assert_equals(root, "/caiman_shredder")
+		assert_equals(name, "caiman_shredder")
 		return { rpm = 12564 }
 	end
-	local function caiman_electrifier()
+
+	local function caiman_electrifier(root, name)
+		assert_equals(root, "/caiman_shredder")
+		assert_equals(name, "caiman_shredder")
 		return { power = "12kw" }
 	end
-	local templates = { caiman_shredder, caiman_electrifier, test = "bah" }
 
-	assert_equals(load_templates("", "", {}, templates), { rpm = 12564, power = "12kw" })
+	local templates = { caiman_shredder, caiman_electrifier, blade_count = 10 }
+	local config = load_templates("/caiman_shredder", "caiman_shredder", {}, templates)
+	assert_equals(config, { rpm = 12564, power = "12kw", blade_count = 10 })
 end
 
 function Suite.load_lua_module()
