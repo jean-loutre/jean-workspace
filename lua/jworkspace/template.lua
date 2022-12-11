@@ -11,27 +11,6 @@ local Path = require("jnvim.path")
 
 local template = {}
 
-local function split_source(source)
-	assert(is_string(source), "Bad argument")
-	local type_start, type_end = string.find(source, "^[^:]+:")
-
-	local source_type
-	local source_name
-	if type_start == nil then
-		source_type = "require"
-		source_name = source
-	else
-		source_type = string.sub(source, type_start, type_end - 1)
-		source_name = string.sub(source, type_end + 1)
-	end
-
-	return source_type, source_name
-end
-
-local function require_module(name)
-	return require(name)
-end
-
 local function load_lua_file(path)
 	local script = loadfile(tostring(path))
 	assert(script ~= nil)
@@ -55,30 +34,28 @@ local FILE_LOADERS = {
 	json = load_yaml_file,
 }
 
-local function load_file(name)
-	local file_path = Path(name)
-	local extension = file_path.extension
+local function load_file(path)
+	local extension = path.extension
 	local loader = FILE_LOADERS[extension]
 	if not loader then
 		error("Unable to load file of type " .. extension)
 	end
 
-	return loader(file_path)
+	return loader(path)
 end
 
-local function load_glob(glob)
-	return Path.glob(glob)
-		:map(function(path)
-			return "file:" .. tostring(path)
-		end)
-		:to_list()
-end
+local function load_source(source)
+	assert(is_string(source))
+	local status, result = pcall(function()
+		return require(source)
+	end)
 
-local LOADERS = {
-	["require"] = require_module,
-	file = load_file,
-	glob = load_glob,
-}
+	if status then
+		return result
+	end
+
+	return Path.glob(source):map(load_file):to_list()
+end
 
 --- Load a workspace configuration template from a source.
 --
@@ -102,10 +79,7 @@ function template.load_templates(root, name, config, source)
 		if is_callable(source) then
 			source = source(root, name, config) or {}
 		elseif is_string(source) then
-			local source_type, source_name = split_source(source)
-			local loader = LOADERS[source_type]
-			assert(loader, "Unknown source type " .. source_type)
-			source = loader(source_name) or {}
+			source = load_source(source)
 		end
 	until is_table(source)
 

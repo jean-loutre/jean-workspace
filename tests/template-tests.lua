@@ -43,24 +43,23 @@ function Suite.load_lua_module()
 
 	-- Default loader is lua module
 	assert_equals(load_templates("", "", {}, "caiman_shredder"), { power = "12kw" })
-	assert_equals(load_templates("", "", {}, "require:caiman_shredder"), { power = "12kw" })
 end
 
 function Suite.load_lua_file()
-	local template = load_templates("", "", {}, "file:tests/data/templates/caiman_shredder.lua")
+	local template = load_templates("", "", {}, "tests/data/templates/caiman_shredder.lua")
 	assert_equals(template, { power = "12kw" })
 end
 
 function Suite.load_yaml_file()
 	for extension in iter({ "yml", "yaml", "json" }) do
-		local template = load_templates("", "", {}, "file:tests/data/templates/caiman_shredder." .. extension)
+		local template = load_templates("", "", {}, "tests/data/templates/caiman_shredder." .. extension)
 
 		assert_equals(template, { rpm = 15264 })
 	end
 end
 
 function Suite.load_glob()
-	local result = load_templates("", "", {}, "glob:tests/data/templates/caiman_shredder.*")
+	local result = load_templates("", "", {}, "tests/data/templates/caiman_shredder.*")
 	assert_equals(result, {
 		power = "12kw",
 		rpm = 15264,
