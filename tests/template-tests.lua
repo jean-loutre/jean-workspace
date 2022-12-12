@@ -6,15 +6,27 @@ local load_config = require("jworkspace.template").load_config
 local Suite = TestSuite()
 
 function Suite.load_function()
-	local function template(root, name, config)
+	local function return_config(root, name, config)
 		assert_equals(root, "/caiman_shredder")
 		assert_equals(name, "caiman_shredder")
 		assert_equals(config, {})
 		return { power = "12kw" }
 	end
 
-	local config = load_config("/caiman_shredder", "caiman_shredder", {}, template)
+	local function fail(root, name, config)
+		assert_equals(root, "/caiman_shredder")
+		assert_equals(name, "caiman_shredder")
+		assert_equals(config, {})
+		return false
+	end
+
+	local config
+
+	config = load_config("/caiman_shredder", "caiman_shredder", {}, return_config)
 	assert_equals(config, { power = "12kw" })
+
+	config = load_config("/caiman_shredder", "caiman_shredder", {}, fail)
+	assert_equals(config, {})
 end
 
 function Suite.load_table_import()
