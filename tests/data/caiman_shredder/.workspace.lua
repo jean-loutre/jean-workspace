@@ -1,3 +1,3 @@
 return {
-	power = "12kw",
+	rpm = 15264,
 }
