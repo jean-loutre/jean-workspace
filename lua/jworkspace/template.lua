@@ -72,6 +72,8 @@ end
 -- `jlua.iterator[{str=*]`
 --      The resulting workspace configuration.
 function template.load_config(root, name, config, template_)
+	assert(Map:is_class_of(config))
+
 	repeat
 		if is_callable(template_) then
 			template_ = template_(root, name, config) or {}
@@ -81,11 +83,11 @@ function template.load_config(root, name, config, template_)
 	until is_table(template_)
 
 	for key, import in ipairs(template_) do
-		Map.update(config, template.load_config(root, name, config, import) or {})
+		config:update(template.load_config(root, name, config, import) or {})
 		template_[key] = nil
 	end
 
-	return Map.update(config, template_)
+	return config:update(template_)
 end
 
 return template

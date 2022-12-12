@@ -141,8 +141,8 @@ function Plugin:_load_workspace(root, name, trigger_path)
 	assert(is_string(root))
 	assert(is_string(name))
 	assert(trigger_path == nil or Path:is_class_of(trigger_path))
-	local config = load_config(root, name, {}, self._templates)
-	local new_workspace = Workspace(Path(root), name, config)
+	local config = load_config(root, name, Map(), self._templates)
+	local new_workspace = Workspace(Path(root), name, config:to_raw())
 
 	if trigger_path ~= nil and not new_workspace:matches_file(trigger_path) then
 		return
