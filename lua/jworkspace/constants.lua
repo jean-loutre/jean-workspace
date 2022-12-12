@@ -3,7 +3,7 @@
 local constants = {}
 
 constants.default_config = {
-	templates = "jworkpace.builtin",
+	templates = "jworkspace.builtin",
 	root_mappers = { require("jworkspace.builtin.root-mappers").match_patterns },
 	root_patterns = {
 		".git",

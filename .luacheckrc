@@ -1,5 +1,5 @@
 formatter = "plain"
-exclude_files = {"third-party"}
+exclude_files = { "third-party" }
 
 stds.luaunit = {
 	globals = { "LuaUnit" },
@@ -52,8 +52,15 @@ stds.nvim = {
 				log = {
 					fields = {
 						levels = {
-							fields = { "ERROR" }
+							fields = { "ERROR" },
 						},
+					},
+				},
+
+				lsp = {
+					fields = {
+						"start",
+						"buf_attach_client",
 					},
 				},
 

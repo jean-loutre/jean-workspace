@@ -14,6 +14,7 @@ local function add_third_party_path(path)
 	package.path = package.path .. ";" .. script_dir .. "../third-party/" .. path
 end
 
+add_third_party_path("../lua/?/init.lua")
 add_third_party_path("?.lua")
 add_third_party_path("?/init.lua")
 add_third_party_path("./jean-nvim/lua/?.lua")

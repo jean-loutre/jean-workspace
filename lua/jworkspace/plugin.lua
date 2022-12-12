@@ -165,7 +165,7 @@ function Plugin:_add_workspace(root, name, trigger_path)
 
 	self._workspaces:push(new_workspace)
 	local workspace_id = #self._workspaces
-	self:execute_user_autocommand("WorkspaceAdd", { workspace = workspace_id, config = config })
+	self:execute_user_autocommand("WorkspaceAdd")
 	self:_enter_workspace(workspace_id)
 end
 
