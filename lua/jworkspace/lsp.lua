@@ -29,6 +29,7 @@ function Lsp:workspace_enter()
 		name = lsp_config.server_name or "LSP",
 		cmd = lsp_config.cmd,
 		root_dir = workspace_root,
+		settings = lsp_config.settings,
 	})
 end
 
