@@ -27,7 +27,7 @@ end
 
 function Suite.map_workspace()
 	Plugin({
-		workspace_mappers = {
+		root_mappers = {
 			function(buffer)
 				assert_equals(buffer.name, "/caiman_shredder/setup.py")
 				return "/caiman_shredder", "Caiman Shredder"
@@ -84,7 +84,7 @@ end
 
 function Suite.file_filters()
 	Plugin({
-		workspace_mappers = {
+		root_mappers = {
 			function(_)
 				return "/caiman_shredder", "Caiman Shredder"
 			end,
@@ -150,7 +150,7 @@ end
 
 function Suite.activate_workspace_on_buffer_switch()
 	Plugin({
-		workspace_mappers = {
+		root_mappers = {
 			function(buffer)
 				if buffer.name == "/caiman_shredder/setup.py" then
 					return "/caiman_shredder", "Caiman Shredder"

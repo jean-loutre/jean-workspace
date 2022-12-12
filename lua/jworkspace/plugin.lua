@@ -14,7 +14,7 @@ local constants = require("jworkspace.template")
 
 local Plugin = ContextHandler:extend()
 
-local function load_workspace_mapper(mapper_config)
+local function load_root_mapper(mapper_config)
 	if is_callable(mapper_config) then
 		return mapper_config
 	end
@@ -26,11 +26,11 @@ function Plugin:init(config)
 	self._config = Map(constants.default_config)
 	self._config:update(config)
 
-	local workspace_mappers = self._config:pop("workspace_mappers", {})
+	local root_mappers = self._config:pop("root_mappers", {})
 
 	self._active_workspace_id = 0
 	self._templates = self._config:pop("templates", {})
-	self._workspace_mappers = iter(workspace_mappers):map(load_workspace_mapper):to_list()
+	self._root_mappers = iter(root_mappers):map(load_root_mapper):to_list()
 	self._workspaces = List({})
 
 	self:bind_user_command("load_workspace", { nargs = "*" })
@@ -111,7 +111,7 @@ function Plugin:activate_workspace(opts)
 end
 
 function Plugin:_on_buffer_add(args)
-	local root, name = self._workspace_mappers
+	local root, name = self._root_mappers
 		:map(function(it)
 			return it(args.buf)
 		end)
