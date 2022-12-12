@@ -57,15 +57,15 @@ local function load_source(source)
 	return Path.glob(source):map(load_file):to_list()
 end
 
---- Load a workspace configuration template from a source.
+--- Load a workspace configuration configuration from a template.
 --
 -- Parameters
 -- ----------
--- source : function | { source } | str
+-- template : function | { template } | str
 --     Source.
 --      * If it's callable (function or class with __call member), will return
---        the source itself.
---      * If it's a table, will return the result of load_templates on each
+--        the template itself.
+--      * If it's a table, will return the result of load_config on each
 --        element of the table.
 --      * If it's a string, will try to load the pointed ressource.
 --        TODO: add documentation about this.
@@ -74,7 +74,7 @@ end
 -- -------
 -- `jlua.iterator[{str=*]`
 --      The resulting workspace configuration.
-function template.load_templates(root, name, config, source)
+function template.load_config(root, name, config, source)
 	repeat
 		if is_callable(source) then
 			source = source(root, name, config) or {}
@@ -85,7 +85,7 @@ function template.load_templates(root, name, config, source)
 
 	for key, import in ipairs(source) do
 		assert(import)
-		config = template.load_templates(root, name, config, import) or {}
+		config = template.load_config(root, name, config, import) or {}
 		source[key] = nil
 	end
 

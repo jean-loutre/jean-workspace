@@ -9,7 +9,7 @@ local ContextHandler = require("jnvim.context-handler")
 local Path = require("jnvim.path")
 
 local Workspace = require("jworkspace.workspace")
-local load_templates = require("jworkspace.template").load_templates
+local load_config = require("jworkspace.template").load_config
 local constants = require("jworkspace.template")
 
 local Plugin = ContextHandler:extend()
@@ -141,7 +141,7 @@ function Plugin:_load_workspace(root, name, trigger_path)
 	assert(is_string(root))
 	assert(is_string(name))
 	assert(trigger_path == nil or Path:is_class_of(trigger_path))
-	local config = load_templates(root, name, {}, self._templates)
+	local config = load_config(root, name, {}, self._templates)
 	local new_workspace = Workspace(Path(root), name, config)
 
 	if trigger_path ~= nil and not new_workspace:matches_file(trigger_path) then
