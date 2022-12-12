@@ -23,9 +23,9 @@ function Plugin:init(config)
 	self._templates = self._config:pop("templates", {})
 	self._workspaces = List({})
 
-	self:bind_user_command("load_workspace", { nargs = "*" })
-	self:bind_user_command("activate_workspace", { nargs = 1 })
-	self:bind_function("get_active_workspace")
+	self:bind_user_command("add_workspace", { nargs = "*" })
+	self:bind_user_command("enter_workspace", { nargs = 1 })
+	self:bind_function("get_current_workspace")
 	self:bind_function("get_workspace_config")
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
@@ -35,7 +35,7 @@ function Plugin:init(config)
 end
 
 --- Return the active workspace id
-function Plugin:get_active_workspace()
+function Plugin:get_current_workspace()
 	return self._active_workspace_id
 end
 
@@ -47,10 +47,10 @@ end
 --     Name of the workspace.
 -- root: str
 --     Root directory of the workspace
-function Plugin:load_workspace(args)
+function Plugin:add_workspace(args)
 	local root = Path(args.fargs[1] or Path.cwd())
 	local name = args.fargs[2] or root.basename
-	self:_load_workspace(tostring(root), name)
+	self:_add_workspace(tostring(root), name)
 end
 
 --- Return the name of the workspace with the given id
@@ -96,8 +96,8 @@ end
 --
 -- id : int
 --     The workspace id
-function Plugin:activate_workspace(opts)
-	self:_activate_workspace(tonumber(opts.args))
+function Plugin:enter_workspace(opts)
+	self:_enter_workspace(tonumber(opts.args))
 end
 
 function Plugin:_on_buffer_add(args)
@@ -110,7 +110,7 @@ function Plugin:_on_buffer_add(args)
 	if root and name then
 		assert(is_string(root))
 		assert(is_string(name))
-		self:_load_workspace(root, name, Path(args.buf.name))
+		self:_add_workspace(root, name, Path(args.buf.name))
 	end
 end
 
@@ -124,10 +124,10 @@ function Plugin:_on_buffer_enter(args)
 		return
 	end
 
-	self:_activate_workspace(workspace_id_to_activate)
+	self:_enter_workspace(workspace_id_to_activate)
 end
 
-function Plugin:_load_workspace(root, name, trigger_path)
+function Plugin:_add_workspace(root, name, trigger_path)
 	assert(is_string(root))
 	assert(is_string(name))
 	assert(trigger_path == nil or Path:is_class_of(trigger_path))
@@ -140,11 +140,11 @@ function Plugin:_load_workspace(root, name, trigger_path)
 
 	self._workspaces:push(new_workspace)
 	local workspace_id = #self._workspaces
-	self:execute_user_autocommand("WorkspaceLoaded", { workspace = workspace_id, config = config })
-	self:_activate_workspace(workspace_id)
+	self:execute_user_autocommand("WorkspaceAdd", { workspace = workspace_id, config = config })
+	self:_enter_workspace(workspace_id)
 end
 
-function Plugin:_activate_workspace(id)
+function Plugin:_enter_workspace(id)
 	assert(id == 0 or self._workspaces[id], "Invalid workspace id")
 
 	if self._active_workspace_id == id then
@@ -152,13 +152,13 @@ function Plugin:_activate_workspace(id)
 	end
 
 	if self._active_workspace_id ~= 0 then
-		self:execute_user_autocommand("WorkspaceDeactivated", { workspace = self._active_workspace_id })
+		self:execute_user_autocommand("WorkspaceLeave", { workspace = self._active_workspace_id })
 	end
 
 	self._active_workspace_id = id
 
 	if self._active_workspace_id ~= 0 then
-		self:execute_user_autocommand("WorkspaceActivated", { workspace = self._active_workspace_id })
+		self:execute_user_autocommand("WorkspaceEnter", { workspace = self._active_workspace_id })
 	end
 end
 
