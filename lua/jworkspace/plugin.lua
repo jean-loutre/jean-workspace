@@ -103,7 +103,7 @@ end
 function Plugin:_on_buffer_add(args)
 	local root, name = self._root_mappers
 		:map(function(it)
-			return it(args.buf)
+			return it(self._config, args.buf)
 		end)
 		:first()
 

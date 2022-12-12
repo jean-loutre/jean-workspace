@@ -25,10 +25,10 @@ function Suite.load_workspace()
 	assert_equals(vim.fn["jw#get_workspace_root"](), "/caiman_shredder")
 end
 
-function Suite.map_workspace()
+function Suite.map_root()
 	Plugin({
 		root_mappers = {
-			function(buffer)
+			function(_, buffer)
 				assert_equals(buffer.name, "/caiman_shredder/setup.py")
 				return "/caiman_shredder", "Caiman Shredder"
 			end,
@@ -85,7 +85,7 @@ end
 function Suite.file_filters()
 	Plugin({
 		root_mappers = {
-			function(_)
+			function()
 				return "/caiman_shredder", "Caiman Shredder"
 			end,
 		},
@@ -151,7 +151,7 @@ end
 function Suite.activate_workspace_on_buffer_switch()
 	Plugin({
 		root_mappers = {
-			function(buffer)
+			function(_, buffer)
 				if buffer.name == "/caiman_shredder/setup.py" then
 					return "/caiman_shredder", "Caiman Shredder"
 				end
