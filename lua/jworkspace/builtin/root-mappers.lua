@@ -11,7 +11,7 @@ function root_mappers.match_patterns(config, buffer)
 	for parent in buffer_path.parents do
 		for pattern in iter(patterns) do
 			if parent:glob(pattern):any() then
-				return parent, parent.basename
+				return tostring(parent), parent.basename
 			end
 		end
 	end

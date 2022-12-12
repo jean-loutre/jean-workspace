@@ -5,16 +5,18 @@ local is_string = require("jlua.type").is_string
 local iter = require("jlua.iterator").iter
 
 local ContextHandler = require("jnvim.context-handler")
+local Buffer = require("jnvim.buffer")
 local Path = require("jnvim.path")
 
 local Workspace = require("jworkspace.workspace")
 local load_config = require("jworkspace.template").load_config
-local constants = require("jworkspace.template")
+local constants = require("jworkspace.constants")
 
 local Plugin = ContextHandler:extend()
 
 function Plugin:init(config)
 	self:parent("init", "jw")
+
 	self._config = Map(constants.default_config)
 	self._config:update(config)
 
@@ -29,6 +31,7 @@ function Plugin:init(config)
 	self:bind_function("get_workspace_config")
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
+	self:bind_function("buf_matches_workspace")
 	self:bind_autocommand("BufAdd", "_on_buffer_add")
 	self:bind_autocommand("BufEnter", "_on_buffer_enter")
 	self:enable()
@@ -98,6 +101,28 @@ end
 --     The workspace id
 function Plugin:enter_workspace(opts)
 	self:_enter_workspace(tonumber(opts.args))
+end
+
+--- Return true if a buffer matches a workspace filter
+--
+-- @param workspace int : Id of the workspace, or 0 to match against active workspace
+-- @param buffer int : Id of the buffer
+--- @returns boolean : true if the given buffer matches the given workspace
+function Plugin:buf_matches_workspace(buffer, workspace)
+	workspace = workspace or self._active_workspace_id
+
+	if workspace == 0 then
+		workspace = self._active_workspace_id
+	end
+
+	if not self._workspaces[workspace] then
+		return true
+	end
+
+	buffer = buffer or 0
+
+	assert(self._workspaces[workspace], "Invalid workspace id")
+	return self._workspaces[workspace]:matches_file(Path(Buffer.from_handle(buffer).name))
 end
 
 function Plugin:_on_buffer_add(args)
