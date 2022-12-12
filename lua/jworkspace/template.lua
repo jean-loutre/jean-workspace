@@ -41,17 +41,17 @@ local function load_file(path)
 	return loader(path)
 end
 
-local function load_source(source)
-	assert(is_string(source))
+local function load_template_source(template_source)
+	assert(is_string(template_source))
 	local status, result = pcall(function()
-		return require(source)
+		return require(template_source)
 	end)
 
 	if status then
 		return result
 	end
 
-	return Path.glob(source):map(load_file):to_list()
+	return Path.glob(template_source):map(load_file):to_list()
 end
 
 --- Load a workspace configuration configuration from a template.
@@ -64,29 +64,28 @@ end
 --        the template itself.
 --      * If it's a table, will return the result of load_config on each
 --        element of the table.
---      * If it's a string, will try to load the pointed ressource.
+--      * If it's a string, will try to load the pointed restemplate_source.
 --        TODO: add documentation about this.
 --
 -- Returns
 -- -------
 -- `jlua.iterator[{str=*]`
 --      The resulting workspace configuration.
-function template.load_config(root, name, config, source)
+function template.load_config(root, name, config, template_)
 	repeat
-		if is_callable(source) then
-			source = source(root, name, config) or {}
-		elseif is_string(source) then
-			source = load_source(source)
+		if is_callable(template_) then
+			template_ = template_(root, name, config) or {}
+		elseif is_string(template_) then
+			template_ = load_template_source(template_)
 		end
-	until is_table(source)
+	until is_table(template_)
 
-	for key, import in ipairs(source) do
-		assert(import)
+	for key, import in ipairs(template_) do
 		Map.update(config, template.load_config(root, name, config, import) or {})
-		source[key] = nil
+		template_[key] = nil
 	end
 
-	return Map.update(config, source)
+	return Map.update(config, template_)
 end
 
 return template
