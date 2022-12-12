@@ -1,7 +1,6 @@
 --- The Jean Workspace plugin instance
 local List = require("jlua.list")
 local Map = require("jlua.map")
-local is_callable = require("jlua.type").is_callable
 local is_string = require("jlua.type").is_string
 local iter = require("jlua.iterator").iter
 
@@ -14,23 +13,14 @@ local constants = require("jworkspace.template")
 
 local Plugin = ContextHandler:extend()
 
-local function load_root_mapper(mapper_config)
-	if is_callable(mapper_config) then
-		return mapper_config
-	end
-	assert(false) -- TODO: log error
-end
-
 function Plugin:init(config)
 	self:parent("init", "jw")
 	self._config = Map(constants.default_config)
 	self._config:update(config)
 
-	local root_mappers = self._config:pop("root_mappers", {})
-
 	self._active_workspace_id = 0
+	self._root_mappers = List(self._config:pop("root_mappers", {}))
 	self._templates = self._config:pop("templates", {})
-	self._root_mappers = iter(root_mappers):map(load_root_mapper):to_list()
 	self._workspaces = List({})
 
 	self:bind_user_command("load_workspace", { nargs = "*" })
