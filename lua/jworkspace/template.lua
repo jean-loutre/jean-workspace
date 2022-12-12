@@ -14,16 +14,13 @@ local template = {}
 local function load_lua_file(path)
 	local script = loadfile(tostring(path))
 	assert(script ~= nil)
-	local result = script()
-	return result
+	return script()
 end
 
 local function load_yaml_file(path)
 	return with(path:open("r"), function(file)
 		local content = file:read("*all")
-		return function()
-			return yaml.eval(content)
-		end
+		return yaml.eval(content)
 	end)
 end
 
@@ -85,7 +82,7 @@ function template.load_config(root, name, config, source)
 
 	for key, import in ipairs(source) do
 		assert(import)
-		config = template.load_config(root, name, config, import) or {}
+		Map.update(config, template.load_config(root, name, config, import) or {})
 		source[key] = nil
 	end
 
