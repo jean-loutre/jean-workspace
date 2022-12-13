@@ -1,9 +1,9 @@
 --- Load lsp jworkspace extension if needed
 --- @module 'jworkspace.builtin.lsp'
 
---- @param config jlua.Map The workspace configuration
 return {
 	require("jworkspace.builtin.lsp.pylsp"),
+	require("jworkspace.builtin.lsp.lua-language-server"),
 	function(_, _, config)
 		if config["lsp"] then
 			require("jworkspace.lsp")
