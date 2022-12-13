@@ -1,4 +1,4 @@
 return {
-	require("jworkspace.builtin.python"),
+	require("jworkspace.builtin.lsp"),
 	require("jworkspace.builtin.common"),
 }
