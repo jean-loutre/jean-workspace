@@ -108,6 +108,9 @@ end
 
 function Mappings:workspace_leave()
 	local workspace_id = vim.fn["jw#get_current_workspace"]()
+	if not self._workspaces[workspace_id] then
+		return
+	end
 	self._workspaces[workspace_id]:disable()
 end
 
