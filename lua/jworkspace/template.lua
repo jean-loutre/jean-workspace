@@ -82,9 +82,8 @@ function template.load_config(root, name, config, template_)
 		end
 	until is_table(template_)
 
-	for key, import in ipairs(template_) do
+	for _, import in ipairs(template_) do
 		config:update(template.load_config(root, name, config, import) or {})
-		template_[key] = nil
 	end
 
 	return config:update(template_)
