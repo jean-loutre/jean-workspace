@@ -176,6 +176,7 @@ function Plugin:_enter_workspace(id)
 		return
 	end
 
+	assert(self._active_workspace_id ~= nil)
 	if self._active_workspace_id ~= 0 then
 		self:execute_user_autocommand("WorkspaceLeave", { workspace = self._active_workspace_id })
 	end

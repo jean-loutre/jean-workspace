@@ -47,6 +47,7 @@ stds.nvim = {
 						"nvim_win_close",
 						"nvim_win_is_valid",
 						"nvim_win_set_buf",
+						"nvim_win_get_buf",
 					},
 				},
 
