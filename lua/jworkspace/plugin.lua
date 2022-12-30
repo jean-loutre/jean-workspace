@@ -1,12 +1,14 @@
 --- The Jean Workspace plugin instance
 local List = require("jlua.list")
 local Map = require("jlua.map")
+local get_logger = require("jlua.logging").get_logger
 local is_string = require("jlua.type").is_string
 local iter = require("jlua.iterator").iter
 
 local ContextHandler = require("jnvim.context-handler")
 local Buffer = require("jnvim.buffer")
 local Path = require("jnvim.path")
+local load_commands = require("jnvim.tools").load_commands
 
 local Workspace = require("jworkspace.workspace")
 local load_config = require("jworkspace.template").load_config
@@ -14,8 +16,12 @@ local constants = require("jworkspace.constants")
 
 local Plugin = ContextHandler:extend()
 
+local log = get_logger(...)
+
 function Plugin:init(config)
 	self:parent("init", "jw")
+
+	load_commands({ "JNOpenLog" })
 
 	self._config = Map(constants.default_config)
 	self._config:update(config)
@@ -156,6 +162,7 @@ function Plugin:_add_workspace(root, name, trigger_path)
 	assert(is_string(root))
 	assert(is_string(name))
 	assert(trigger_path == nil or Path:is_class_of(trigger_path))
+	log:debug("creating new workspace {} with root {}.", name, tostring(root))
 	local config = load_config(root, name, Map(), self._templates)
 	local new_workspace = Workspace(Path(root), name, config:to_raw())
 
@@ -178,12 +185,14 @@ function Plugin:_enter_workspace(id)
 
 	assert(self._active_workspace_id ~= nil)
 	if self._active_workspace_id ~= 0 then
+		log:debug("leaving workspace {}.", self:get_workspace_name())
 		self:execute_user_autocommand("WorkspaceLeave", { workspace = self._active_workspace_id })
 	end
 
 	self._active_workspace_id = id
 
 	if self._active_workspace_id ~= 0 then
+		log:debug("entering workspace {}.", self:get_workspace_name())
 		self:execute_user_autocommand("WorkspaceEnter", { workspace = self._active_workspace_id })
 	end
 end

@@ -2,10 +2,11 @@
 --- @module 'jlua.lsp'
 local Object = require("jlua.object")
 local Map = require("jlua.map")
-local ContextHandler = require("jnvim.context-handler")
+local Context = require("jnvim.context")
 local iter = require("jlua.iterator").iter
+local bind = require("jlua.functional").bind
 
-local Lsp = ContextHandler:extend()
+local Lsp = Object:extend()
 
 local LspWorkspace = Object:extend()
 
@@ -57,8 +58,9 @@ end
 function Lsp:init()
 	self:parent("init", "jw")
 	self._workspaces = Map()
-	self:bind_autocommand("BufEnter", "buffer_enter")
-	self:enable()
+	self._context = Context()
+	self._context:add_autocommand("BufEnter", { callback = bind(self.buffer_enter, self) })
+	self._context:enable()
 end
 
 function Lsp:buffer_enter(args)
