@@ -40,7 +40,10 @@ end
 function TerminalWindow:close()
 	local mode = self.config.mode
 	if mode == "current_window" then
-		vim.api.nvim_win_set_buf(self.window_id, self.old_buffer_id)
+		if self.window_id then
+			assert(self.old_buffer_id)
+			vim.api.nvim_win_set_buf(self.window_id, self.old_buffer_id)
+		end
 	else
 		vim.api.nvim_win_close(self.window_id, true)
 	end

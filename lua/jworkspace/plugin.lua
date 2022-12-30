@@ -181,14 +181,14 @@ function Plugin:_enter_workspace(id)
 	assert(self._active_workspace_id ~= nil)
 	if self._active_workspace_id ~= 0 then
 		log:debug("leaving workspace {}.", self:get_workspace_name())
-		self:execute_user_autocommand("WorkspaceLeave", { workspace = self._active_workspace_id })
+		self:execute_user_autocommand("WorkspaceLeave")
 	end
 
 	self._active_workspace_id = id
 
 	if self._active_workspace_id ~= 0 then
 		log:debug("entering workspace {}.", self:get_workspace_name())
-		self:execute_user_autocommand("WorkspaceEnter", { workspace = self._active_workspace_id })
+		self:execute_user_autocommand("WorkspaceEnter")
 	end
 end
 
