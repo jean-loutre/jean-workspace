@@ -38,7 +38,6 @@ function Plugin:init(config)
 	self:bind_function("get_workspace_name")
 	self:bind_function("get_workspace_root")
 	self:bind_function("buf_matches_workspace")
-	self:bind_autocommand("BufAdd", "_on_buffer_add")
 	self:bind_autocommand("BufEnter", "_on_buffer_enter")
 	self:enable()
 end
@@ -131,20 +130,6 @@ function Plugin:buf_matches_workspace(buffer, workspace)
 	return self._workspaces[workspace]:matches_file(Path(Buffer.from_handle(buffer).name))
 end
 
-function Plugin:_on_buffer_add(args)
-	local root, name = self._root_mappers
-		:map(function(it)
-			return it(self._config, args.buf)
-		end)
-		:first()
-
-	if root and name then
-		assert(is_string(root))
-		assert(is_string(name))
-		self:_add_workspace(root, name, Path(args.buf.name))
-	end
-end
-
 function Plugin:_on_buffer_enter(args)
 	local buffer_path = Path(args.buf.name)
 	local workspace_id_to_activate = iter(pairs(self._workspaces)):first(function(_, workspace)
@@ -152,10 +137,20 @@ function Plugin:_on_buffer_enter(args)
 	end)
 
 	if not workspace_id_to_activate then
-		return
-	end
+		local root, name = self._root_mappers
+			:map(function(it)
+				return it(self._config, args.buf)
+			end)
+			:first()
 
-	self:_enter_workspace(workspace_id_to_activate)
+		if root and name then
+			assert(is_string(root))
+			assert(is_string(name))
+			self:_add_workspace(root, name, Path(args.buf.name))
+		end
+	else
+		self:_enter_workspace(workspace_id_to_activate)
+	end
 end
 
 function Plugin:_add_workspace(root, name, trigger_path)

@@ -89,7 +89,7 @@ function Mappings:init()
 	self:enable()
 end
 
-function Mappings._create_workspace(config)
+function Mappings._create_workspace(_, config)
 	if not config.mappings then
 		return nil
 	end
