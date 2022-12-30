@@ -102,7 +102,7 @@ function template.load_config(root, name, config, template_)
 		if is_callable(template_) then
 			template_ = template_(root, name, config) or {}
 		elseif is_string(template_) then
-			template_ = load_template_source(template_)
+			template_ = load_template_source(template_) or {}
 		end
 	until is_table(template_)
 
