@@ -16,13 +16,13 @@ local Mappings = Extension:extend()
 
 Mappings.Workspace = Extension.Workspace:extend()
 
-local function map_mode(context, mode, mappings)
+local function map_mode(context, mode, mappings, default_options)
 	for lhs, mapping in iter(mappings) do
-		local options = {}
+		local options = Map(default_options)
 		local rhs = mapping
 		if is_table(mapping) then
-			options = mapping
-			rhs = Map.pop(options, "rhs")
+			rhs = Map.pop(mapping, "rhs")
+			options:update(mapping)
 		end
 		context:map(mode, lhs, rhs, options)
 	end
@@ -32,13 +32,14 @@ function Mappings.Workspace:init(mappings)
 	self._global_context = Context()
 	self._named_contextes = Map()
 
+	local default_options = Map.pop(mappings, "default_options", {})
 	for mode, mode_mappings in iter(mappings) do
 		if mode == "n" or mode == "v" or mode == "i" or mode == "t" then
-			map_mode(self._global_context, mode, mode_mappings)
+			map_mode(self._global_context, mode, mode_mappings, default_options)
 		else
 			local named_context = Context()
 			for actual_mode, context_mode_mappings in iter(mode_mappings) do
-				map_mode(named_context, actual_mode, context_mode_mappings)
+				map_mode(named_context, actual_mode, context_mode_mappings, default_options)
 			end
 			self._named_contextes[mode] = named_context
 		end
